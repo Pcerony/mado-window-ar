@@ -3,7 +3,9 @@
 ## Entry Points
 
 - Mac: `/`, use the phone icon to enable four markers and show the QR code. `/?ar` enables markers directly.
-- iPhone: scan the QR code, open in Safari, tap the camera button and allow camera access. Keep all four markers within the camera image. Camera frames stay on the phone.
+- iPhone: scan the QR code, open in Safari, hold the phone in landscape, tap the camera button and allow camera access. Keep all four markers within the camera image. Camera frames stay on the phone. All phone interface strings are Japanese.
+- Portrait Safari displays a Japanese rotate prompt. iPhone Safari cannot be forcibly rotated by a web page; the web-app manifest additionally requests landscape for installed app contexts.
+- Use the Mac route menu or `?ar&scene=coast` for the coastal scene. Coast density, foreground placement and AR masks derive from the same optically synchronized distance.
 - Camera access requires HTTPS (localhost is only suitable for desktop development).
 
 ## Architecture

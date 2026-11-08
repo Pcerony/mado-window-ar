@@ -1,5 +1,7 @@
 import * as THREE from './vendor/three.module.js';
-import {occlude} from './occlusion.mjs';
+import {occlude} from './occlusion.mjs?v=3';
+import {MONSTER_SCALE,monsterPose} from './monster-layout.mjs';
+import {coastAmount} from './world.mjs?v=3';
 export function createMonster(canvas){
   const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,preserveDrawingBuffer:true});
   renderer.setSize(1400,750);renderer.setPixelRatio(1);renderer.setClearColor(0x000000,0);renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -11,7 +13,7 @@ export function createMonster(canvas){
   const black=new THREE.MeshStandardMaterial({color:0x122f29,roughness:1});
   const ivory=new THREE.MeshStandardMaterial({color:0xdddac0,roughness:1});
   const eye=new THREE.MeshStandardMaterial({color:0xf5c474,emissive:0xc97929,emissiveIntensity:.6});
-  const root=new THREE.Group();root.scale.setScalar(51);root.rotation.y=-.48;scene.add(root);
+  const root=new THREE.Group();root.scale.setScalar(MONSTER_SCALE);root.rotation.y=-.48;scene.add(root);
   function ellipsoid(parent,x,y,z,sx,sy,sz,material=skin){const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,12,9),material);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);parent.add(mesh);return mesh}
   function segment(parent,a,b,ra,rb,material=skin){const from=new THREE.Vector3(...a),to=new THREE.Vector3(...b),dir=to.clone().sub(from);const m=new THREE.Mesh(new THREE.CylinderGeometry(rb,ra,dir.length(),10),material);m.position.copy(from.add(to).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());parent.add(m);return m}
   ellipsoid(root,-.18,2.3,0,1.02,1.65,.72);ellipsoid(root,.39,2.12,.29,.57,1.13,.58,belly);
@@ -34,9 +36,12 @@ export function createMonster(canvas){
   tailPoints.slice(1,-1).forEach((p,i)=>plate(tail,p[0],p[1]+.24,p[2],.55-i*.1));
   const ctx=canvas.getContext('2d');
   function render(distance,layout={}){
-    const phase=distance/45;root.position.set(Math.sin(distance/1300)*310,-99+Math.sin(phase*2)*2.2,0);root.rotation.z=Math.sin(phase)*.012;
+    const phase=distance/45,pose=monsterPose(distance);root.position.set(pose.x,pose.y,0);root.rotation.z=Math.sin(phase)*.012;
     limbs[0].rotation.z=Math.sin(phase)*.24;limbs[2].rotation.z=Math.sin(phase+Math.PI)*.24;limbs[1].rotation.z=Math.sin(phase+Math.PI)*.12;limbs[3].rotation.z=Math.sin(phase)*.12;tail.rotation.y=Math.sin(phase*.5)*.13;
-    renderer.render(scene,camera);ctx.clearRect(0,0,1400,750);ctx.drawImage(renderer.domElement,0,0);occlude(ctx,distance,layout);canvas.dataset.distance=distance.toFixed(2);
+    renderer.render(scene,camera);ctx.clearRect(0,0,1400,750);ctx.drawImage(renderer.domElement,0,0);
+    const coast=coastAmount(distance);
+    if(coast>0){ctx.save();ctx.globalAlpha=coast;ctx.globalCompositeOperation='destination-out';ctx.fillRect(0,450,1400,300);ctx.globalCompositeOperation='source-over';ctx.strokeStyle='#d9e9d7';ctx.lineWidth=1.4;for(let i=0;i<3;i++){ctx.globalAlpha=coast*(.65-i*.16);ctx.beginPath();ctx.ellipse(720+pose.x,450+i*5,85+i*24,5+i*2,0,Math.PI*.06,Math.PI*.94);ctx.stroke()}ctx.restore()}
+    occlude(ctx,distance,layout);canvas.dataset.distance=distance.toFixed(2);
   }
   return {render,dispose(){renderer.dispose();scene.traverse(o=>{o.geometry?.dispose()});[skin,belly,spineMat,black,ivory,eye].forEach(m=>m.dispose())}};
 }
