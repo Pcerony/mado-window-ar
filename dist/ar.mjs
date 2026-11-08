@@ -1,9 +1,11 @@
 import {PLANE,MARKERS,markerQuad,readFrame,trackingVisible,cssMatrix} from './ar-core.mjs?v=4';
 import {coastAmount} from './world.mjs?v=3';
-import {createEncounter} from './encounter.mjs?v=4';
+import {createEncounter} from './encounter.mjs?v=5';
 import {createEncounterUI} from './encounter-ui.mjs?v=4';
 import {requestCamera,cameraErrorMessage} from './camera.mjs?v=4';
+import {bindViewport,videoProjection} from './viewport.mjs?v=5';
 const video=document.querySelector('#camera'),projection=document.querySelector('#projection'),canvas=document.querySelector('#creature');
+const stage=document.querySelector('#ar-app');bindViewport(stage);
 const panel=document.querySelector('#start-panel'),start=document.querySelector('#start-camera'),message=document.querySelector('#camera-message');
 const status=document.querySelector('#tracking-text'),count=document.querySelector('#scan-count'),hint=document.querySelector('#scan-hint');
 const stop=document.querySelector('#stop-camera'),flip=document.querySelector('#flip-camera');
@@ -26,7 +28,7 @@ async function startCamera(){
     const media=await requestCamera(navigator.mediaDevices,facing);
     if(token!==generation){media.getTracks().forEach(t=>t.stop());return}
     stream=media;video.srcObject=media;await video.play();if(token!==generation)return;
-    if(!monster){try{const {createMonster}=await import('./monster.mjs?v=4');if(token!==generation)return;monster=createMonster(canvas)}catch(cause){throw Object.assign(new Error('AR renderer could not start'),{name:'GraphicsError',cause})}}
+    if(!monster){try{const {createMonster}=await import('./monster.mjs?v=5');if(token!==generation)return;monster=createMonster(canvas)}catch(cause){throw Object.assign(new Error('AR renderer could not start'),{name:'GraphicsError',cause})}}
     active=true;lastDetection=0;resetTracking();panel.hidden=true;document.body.classList.add('scanning');showCameraControls(true);setStatus('車窓を探しています');start.disabled=false;start.innerHTML='<i data-lucide="camera"></i>カメラを起動';lucide.createIcons();raf=requestAnimationFrame(frame);
   }catch(error){
     if(token!==generation)return;
@@ -45,7 +47,7 @@ function frame(now){
       const transform=PerspT(PLANE,detected);const value=readFrame(image,transform);
       lastQuad=now;quad=detected;
       if(value!==null){velocity=lastCode?Math.max(0,Math.min(250,(value.distance-distance)/((now-lastCode)/1000))):0;distance=value.distance;layout.width=value.width;layout.height=value.height;lastCode=now}
-      const cover=Math.max(innerWidth/capture.width,innerHeight/capture.height),dx=(innerWidth-capture.width*cover)/2,dy=(innerHeight-capture.height*cover)/2;
+      const {scale:cover,dx,dy}=videoProjection(capture.width,capture.height,video.getBoundingClientRect(),stage.getBoundingClientRect());
       const displayed=quad.map((v,i)=>v*cover+(i%2?dy:dx));const warp=PerspT(PLANE,displayed);projection.style.transform=cssMatrix(warp.coeffs);
     }
     const locked=trackingVisible(now,lastQuad,lastCode);projection.style.opacity=locked?'1':'0';document.body.classList.toggle('locked',locked);setStatus(locked?'認識中 · 窓の向こう':detected?'同期コードを読み取り中':'車窓を探しています');
@@ -66,5 +68,3 @@ const help=document.querySelector('#help-dialog');document.querySelector('#help'
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(active||start.disabled)){stopCamera();message.textContent='カメラを起動して、車窓の旅を続けましょう'}});
 window.addEventListener('pagehide',stopCamera);window.addEventListener('resize',resetTracking);
 lucide.createIcons();
-document.querySelector('#rotation-help').onclick=()=>{const el=document.querySelector('#rotation-message');el.hidden=!el.hidden};
-document.querySelector('#continue-portrait').onclick=()=>{document.body.classList.add('orientation-dismissed');startCamera()};

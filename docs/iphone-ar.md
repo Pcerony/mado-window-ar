@@ -2,9 +2,9 @@
 
 ## Entry Points
 
-- Mac: `/screen.html?ar`, with a permanent room QR beside the window. The phone icon also shows a QR dialog.
+- Mac: `/screen.html`, with a full-width window and tracking markers enabled by default. The phone icon opens the optional QR dialog. No permanent room QR is displayed.
 - iPhone: `/` (the default home page). `ar.html` remains a compatibility redirect. Tap the camera button and allow camera access. All interface strings are Japanese.
-- Portrait displays an optional Japanese landscape recommendation. Its primary button dismisses the reminder and requests the camera immediately. Portrait AR is supported, with the information bubble displayed as a bottom sheet.
+- There is no orientation prompt or enforced rotation. Portrait AR is supported, with the information bubble displayed as a bottom sheet. `viewport.mjs` sizes the camera stage from `visualViewport` and projects AR against the displayed video rectangle, avoiding a mismatch between stale layout dimensions and the visible iPhone browser area.
 - Use the Mac route menu or `/screen.html?ar&scene=coast` for the coastal scene. Coast density, foreground placement and AR masks derive from the same optically synchronized distance.
 - Camera access requires HTTPS (localhost is only suitable for desktop development).
 
@@ -14,7 +14,7 @@ js-aruco2 detects marker IDs 12–15 from the ARUCO_MIP_36h12 dictionary. perspe
 
 Three.js renders a custom stylized Godzilla with skeletal group walking, jaw movement and tail motion to an alpha canvas. The camera frame remains untouched. The canvas is projected onto the detected screen plane with a CSS projective matrix. Foreground building, tree, pole and window-divider masks erase the relevant creature pixels.
 
-`encounter.mjs` owns the pause-aware 8–12 second scheduler. Coast alternates ferry/gull; inland selects the museum. Phases are approach, lift, bite, turn, information and return. The gull's approach lasts four seconds to include close observation and receding flight. An information bubble stays readable until dismissed; new encounters never stack. Assets preserve the supplied transparency and are rotated counterclockwise in a small offscreen canvas. Only the next required asset is decoded, reducing peak memory.
+`encounter.mjs` owns the pause-aware 3–5 second scheduler. Coast alternates ferry/gull; inland selects the museum. Phases are approach, lift, bite, turn, information and return. The gull's approach lasts four seconds to include close observation and receding flight. An information bubble stays readable until dismissed; new encounters never stack. Assets preserve the supplied transparency and are rotated counterclockwise in a small offscreen canvas. Only the next required asset is decoded, reducing peak memory.
 
 `secure-entry.js` upgrades nonlocal HTTP pages before application scripts run. GitHub Pages additionally has HTTPS enforcement enabled for `armado.heisei.space`. The supplied QR decodes to the bare domain without a scheme, so the server redirect is essential. Camera permission is requested before importing the AR renderer. Camera and graphics errors have distinct Japanese messages; constraint fallback does not repeat denied permission prompts.
 

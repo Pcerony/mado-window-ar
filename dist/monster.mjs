@@ -2,7 +2,7 @@ import * as THREE from './vendor/three.module.js';
 import {occlude} from './occlusion.mjs?v=3';
 import {MONSTER_SCALE,monsterPose} from './monster-layout.mjs';
 import {coastAmount} from './world.mjs?v=3';
-import {encounterPose} from './encounter.mjs?v=4';
+import {encounterPose} from './encounter.mjs?v=5';
 import {createSpriteBank,drawEncounterSprite} from './encounter-sprites.mjs?v=4';
 export function createMonster(canvas){
   const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,preserveDrawingBuffer:true});
