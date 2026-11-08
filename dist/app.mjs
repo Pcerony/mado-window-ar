@@ -1,7 +1,9 @@
 import {random as r,district,buildings,advance} from './world.mjs';
+import {paintCode} from './ar-core.mjs';
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const state={distance:0,speed:1,paused:matchMedia('(prefers-reduced-motion: reduce)').matches,sound:false};
-let width=1400,height=750,last=0,audio,volume;
+let width=1400,height=750,last=0,audio,volume,arMode=false;
+document.addEventListener('ar-mode',e=>{arMode=e.detail;render()});
 const colors=['#e6e0ce','#d8d9cd','#d9d1bf','#c3ccbf','#e5dacb'];
 function path(points,fill,stroke,line=1){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));if(fill){ctx.closePath();ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.stroke()}}
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
@@ -34,6 +36,7 @@ path([[0,699],[1400,699]],null,'#d3d3b5',7);path([[0,706],[1400,706]],null,'#708
 for(let i=Math.floor(d*1.25/550)-1;i<(d*1.25+1450)/550;i++)pole(i*550-d*1.25);
 // Sparse paper grain is fixed to the view instead of visibly scrolling.
 ctx.globalAlpha=.035;for(let i=0;i<1900;i++){rect(r(i+900)*1400,r(i+5000)*750,1,1,i%2?'#193e39':'#fffef0')}ctx.globalAlpha=1;
+if(arMode)paintCode(ctx,d);
 document.querySelector('#district').textContent=district(d*.48).name;document.querySelector('#distance').textContent=(d/9000).toFixed(1);canvas.dataset.distance=d.toFixed(3);
 }
 function resize(){let box=canvas.getBoundingClientRect();width=box.width;height=box.height;const ratio=Math.min(devicePixelRatio,2);canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);render()}
