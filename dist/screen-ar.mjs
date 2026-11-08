@@ -10,7 +10,7 @@ function toggle(on){active=on;document.body.classList.toggle('ar-enabled',active
 button.onclick=()=>{toggle(true);dialog.showModal()};
 document.querySelector('#close-phone').onclick=()=>dialog.close();
 document.querySelector('#disable-ar').onclick=()=>{toggle(false);dialog.close()};
-const production='https://pcerony.github.io/mado-window-ar/';
-function updateQR(width,height){const url=new URL('./ar.html',location.protocol==='https:'?location.href:production);url.searchParams.set('w',width);url.searchParams.set('h',height);document.querySelector('#phone-link').href=url.href;QRCode.toCanvas(document.querySelector('#phone-qr'),url.href,{width:216,margin:2,color:{dark:'#203e33',light:'#ffffff'}},error=>{if(error)document.querySelector('#phone-message').textContent='二维码生成失败，请使用手机端链接。'});}
+const production='https://armado.heisei.space/';
+function updateQR(width,height){const url=new URL('./',location.protocol==='https:'?location.href:production);url.searchParams.set('w',width);url.searchParams.set('h',height);document.querySelector('#phone-link').href=url.href;QRCode.toCanvas(document.querySelector('#phone-qr'),url.href,{width:216,margin:2,color:{dark:'#203e33',light:'#ffffff'}},error=>{if(error)document.querySelector('#phone-message').textContent='二维码生成失败，请使用手机端链接。'});}
 layout();
-if(new URLSearchParams(location.search).has('ar'))toggle(true);
+toggle(true);

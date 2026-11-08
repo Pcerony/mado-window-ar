@@ -1,6 +1,6 @@
 async (page) => {
   await page.setViewportSize({width:1280,height:800});
-  await page.goto('http://localhost:4178/?ar');
+  await page.goto('http://localhost:4178/screen.html?ar');
   await page.getByRole('button',{name:'暂停',exact:true}).click();
   await page.waitForSelector('.ar-marker svg');
   await page.screenshot({path:'output/playwright/mac-ar-screen.png'});
@@ -9,7 +9,7 @@ async (page) => {
   await page.screenshot({path:'output/playwright/mac-coast-screen.png'});
   const source=(await page.screenshot()).toString('base64');
   await page.setViewportSize({width:844,height:390});
-  await page.goto('http://localhost:4178/ar.html?w=1064&h=424');
+  await page.goto('http://localhost:4178/');
   await page.evaluate(async(source)=>{
     const image=new Image();image.src='data:image/png;base64,'+source;await image.decode();
     const input=document.createElement('canvas');input.width=1280;input.height=720;

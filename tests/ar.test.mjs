@@ -1,11 +1,14 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {encodeDistance,decodeDistance,markerQuad,trackingVisible,readCode,cssMatrix,CODE} from '../dist/ar-core.mjs';
+import {encodeDistance,decodeDistance,decodeFrame,markerQuad,trackingVisible,readCode,cssMatrix,CODE} from '../dist/ar-core.mjs';
 test('optical frame round trips distance and rejects a corrupted bit',()=>{
   for(const distance of [0,1.25,123.456,4000000])assert.ok(Math.abs(decodeDistance(encodeDistance(distance))-distance)<.251);
   const bits=encodeDistance(384);bits[17]^=1;assert.equal(decodeDistance(bits),null);
   assert.equal(decodeDistance([]),null);
   assert.equal(encodeDistance(0).length,CODE.bits);
+});
+test('the optical strip also synchronizes window geometry for the shared room QR',()=>{
+  const data=decodeFrame(encodeDistance(10500,876,424));assert.deepEqual(data,{distance:10500,width:876,height:424});
 });
 test('four identified markers form a consistently ordered screen quad',()=>{
   const mark=(id,x,y)=>({id,corners:[{x:x-5,y:y-5},{x:x+5,y:y-5},{x:x+5,y:y+5},{x:x-5,y:y+5}]});

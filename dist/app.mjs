@@ -1,6 +1,6 @@
 import {random as r,district,buildings,advance,coastAmount,SCENE_STARTS,buildingVisible} from './world.mjs?v=3';
 import {paintCoast} from './coast.mjs?v=3';
-import {paintCode} from './ar-core.mjs';
+import {paintCode} from './ar-core.mjs?v=4';
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const initialScene=new URLSearchParams(location.search).get('scene')==='coast'?'coast':'inland';
 const state={distance:SCENE_STARTS[initialScene],speed:1,paused:matchMedia('(prefers-reduced-motion: reduce)').matches,sound:false};
@@ -27,7 +27,7 @@ function fields(d){rect(0,409,1400,341,'#a5b87a');for(let row=0;row<6;row++){let
 // A narrow irrigation channel follows the track.
 path([[0,624],[1400,614],[1400,650],[0,660]],'#9cbcb0');path([[0,623],[1400,613]],null,'#d2d2ad',5);path([[0,661],[1400,651]],null,'#d5d4b2',5);for(let i=0;i<18;i++){let x=((i*97-d*.8)%1600+1600)%1600-100;path([[x,638],[x+26,638]],null,'#c3d6c1',1)}}
 function pole(x,small=false){let y=small?442:714,top=small?264:89;let color=small?'#718d7c':'#667c70';rect(x,top,small?3:7,y-top,color);path([[x-28,top+25],[x+31,top+25]],null,color,small?3:5);if(!small){rect(x-4,top+50,15,25,'#a5b2a0');for(let a of [-22,21]){rect(x+a,top+15,5,12,'#b8c4ae');rect(x+a-1,top+15,7,2,'#718978')}path([[x+4,top+30],[x+35,y]],null,'#718674',1);path([[x-550,top+27],[x-410,top+46],[x-280,top+55],[x-150,top+47],[x,top+27],[x+150,top+47],[x+280,top+55],[x+410,top+46],[x+550,top+27]],null,'#6b8275',1.2);path([[x-550,top+18],[x-270,top+43],[x,top+18],[x+270,top+43],[x+550,top+18]],null,'#6b8275',.7)}}
-function render(){const d=state.distance;const sx=canvas.width/1400,sy=canvas.height/750,scale=width<600?Math.max(sx,sy):sx;ctx.setTransform(scale,0,0,width<600?scale:sy,width<600?(canvas.width-1400*scale)/2:0,0);let sky=ctx.createLinearGradient(0,0,0,420);sky.addColorStop(0,'#8fc4ce');sky.addColorStop(.65,'#c3dcd5');sky.addColorStop(1,'#e5e7c9');ctx.fillStyle=sky;ctx.fillRect(0,0,1400,750);ellipse(1100,104,37,37,'#f4f1ce');for(let i=0;i<7;i++){let x=((i*337-d*.012)%1900+1900)%1900-250;cloud(x,75+r(i)*115,.45+r(i+8)*.75)}mountains(d);fields(d);
+function render(){const d=state.distance;const sx=canvas.width/1400,sy=canvas.height/750;ctx.setTransform(sx,0,0,sy,0,0);let sky=ctx.createLinearGradient(0,0,0,420);sky.addColorStop(0,'#8fc4ce');sky.addColorStop(.65,'#c3dcd5');sky.addColorStop(1,'#e5e7c9');ctx.fillStyle=sky;ctx.fillRect(0,0,1400,750);ellipse(1100,104,37,37,'#f4f1ce');for(let i=0;i<7;i++){let x=((i*337-d*.012)%1900+1900)%1900-250;cloud(x,75+r(i)*115,.45+r(i+8)*.75)}mountains(d);fields(d);
 const coast=coastAmount(d);paintCoast(ctx,d,coast);
 ctx.globalAlpha=1-coast;
 for(let i=Math.floor(d*.18/65)-2;i<(d*.18+1450)/65+1;i++)tree(i*65-d*.18,422,.55+r(i)*.3,i);
@@ -45,7 +45,7 @@ path([[0,699],[1400,699]],null,'#d3d3b5',7);path([[0,706],[1400,706]],null,'#708
 for(let i=Math.floor(d*1.25/550)-1;i<(d*1.25+1450)/550;i++)pole(i*550-d*1.25);
 // Sparse paper grain is fixed to the view instead of visibly scrolling.
 ctx.globalAlpha=.035;for(let i=0;i<1900;i++){rect(r(i+900)*1400,r(i+5000)*750,1,1,i%2?'#193e39':'#fffef0')}ctx.globalAlpha=1;
-if(arMode)paintCode(ctx,d);
+if(arMode)paintCode(ctx,d,width,height);
 document.querySelector('#district').textContent=coast>.5?'海风沿岸':district(d*.48).name;document.querySelector('#distance').textContent=(d/9000).toFixed(1);canvas.dataset.distance=d.toFixed(3);canvas.dataset.coast=coast.toFixed(3);
 }
 function resize(){let box=canvas.getBoundingClientRect();width=box.width;height=box.height;const ratio=Math.min(devicePixelRatio,2);canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);render()}
